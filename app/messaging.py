@@ -1,6 +1,8 @@
 from sqlalchemy import Table, Column, Integer, String
-from flask import Flask
+from flask import Flask, make_response, json, url_for, request
 from db import Db   # See db.py
+# import user # See user.py
+import message # See message.py
 
 app = Flask(__name__)
 # The keys.json file should contain the 4 properties:
@@ -24,13 +26,26 @@ def index():
 ## looking at sent messages or received messages or creating a new message
 @app.route('/user/<username>', methods = ['GET'])
 def user_page(username):
-   pass
+   return make_json_response({
+      'user': username,
+      'sent': url_for('user_messages', username=username, include='sent'),
+      'received': url_for('user_messages', username=username, include='received'),
+      'create': {
+         'url': url_for('user_new_message', username=username),
+         'content': { 'recipient': '', 'title': '', 'body': '' }
+      }
+   }, 200)
 
 ## Creates a new user. Request body contains the password to be used
 ## If user/password exists, must ensure it is same or else throw error
+## In first iteration of the app, no passwords.
 @app.route('/user/<username>', methods = ['PUT'])
 def user_create(username):
-   pass
+   if len(username) > 20:
+      return make_json_response({ 'error': 'long username' }, 400)
+   return make_json_response({}, 201, {
+      'Location': url_for('user_page', username=username)
+   })
 
 @app.route('/user/<username>', methods = ['DELETE'])
 def user_delete(username):
@@ -43,9 +58,21 @@ def user_messages(username):
    pass
 
 ## Used to post a new message. Body contains information about recipient
+## - Validate the message
+## - Add to database
 @app.route('/user/<username>/messages', methods = ['POST'])
 def user_new_message(username):
-   pass
+   contents = request.get_json()
+   contents['from'] = username
+   error = message.validate_new_message(contents)
+   if error is not None:
+      return make_json_response({ 'error': error }, 400)
+   record_id = db.write_message(contents)
+   if record_id is None:
+      return make_json_response({ 'error': 'Internal Server Error' }, 500)
+   return make_json_response({}, 201, {
+      'Location': url_for('message_get', id=record_id)
+   })
 
 ## Get a particular message
 @app.route('/messages/<id>', methods = ['GET'])
@@ -76,6 +103,11 @@ def tag_add(id, tag):
 @app.route('/messages/<id>/tags/<tag>', methods = ['DELETE'])
 def tag_remove(id, tag):
    pass
+
+## Helper method for creating JSON responses
+def make_json_response(content, response = 200, headers = {}):
+   headers['Content-Type'] = 'application/json'
+   return make_response(json.dumps(content), response, headers)
 
 
 #####################################

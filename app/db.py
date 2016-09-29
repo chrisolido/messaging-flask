@@ -1,5 +1,6 @@
 # Sets up database
 from sqlalchemy import Table, Column, Integer, String, DateTime, Boolean, ForeignKey, MetaData, create_engine
+from datetime import datetime
 
 class Db:
 
@@ -35,3 +36,15 @@ class Db:
       return self.engine.connect()
 
 ## Will add methods that perform queries here
+
+   ## Will create an insert query based on the dictionary m
+   def write_message(self, m):
+      try:
+         conn = self.connect()
+         m['created'] = datetime.today()
+         if 'read' not in m:
+            m['read'] = False
+         result = conn.execute(self.messages.insert(), m)
+         return result.inserted_primary_key[0]
+      except:
+         return None
