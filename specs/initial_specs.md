@@ -10,5 +10,5 @@ This document describes the broad goals of the application.
     - Messages have a "priority" level, which must be "Low", "Medium", or "High". This is set when the message is sent, and cannot be changed.
     - Messages can receive an arbitrary number of tags/labels, which are strings of length no more than 20. The recipient attaches these labels.
 - A user should be able to see all the messages they have sent, along with their "read" status.
-- A user should be able to see all the messages they have received. They should be able to mark messages as read. They should not be able to undo that action.
+- A user should be able to see all the messages they have received. They should be able to mark messages as read or unread.
 - Both message lists should be sortable and filterable in various ways.
