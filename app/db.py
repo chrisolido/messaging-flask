@@ -1,5 +1,5 @@
 # Sets up database
-from sqlalchemy import Table, Column, Integer, String, DateTime, Boolean, ForeignKey, MetaData, create_engine
+from sqlalchemy import *
 from datetime import datetime
 
 class Db:
@@ -48,3 +48,26 @@ class Db:
          return result.inserted_primary_key[0]
       except:
          return None
+
+   def get_messages(self, args, username):
+      conn = self.connect()
+      query = select([self.messages])
+      for field in ['from', 'to']:
+         if field in args:
+            query = query.where(column(field) == args[field])
+      ## Add 'include'
+      if args['include'] == 'sent':
+         query = query.where(column('from') == username)
+      elif args['include'] == 'received':
+         query = query.where(column('to') == username)
+      else:
+         query = query.where(
+            or_( column('from') == username, column('to') == username )
+         )
+      ## Add 'show'
+      if args['show'] == 'read':
+         query = query.where(column('read') == True)
+      elif args['show'] == 'unread':
+         query = query.where(column('read') == False)
+      ## Perform query
+      return conn.execute(query).fetchall()

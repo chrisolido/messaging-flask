@@ -12,8 +12,27 @@ def validate_new_message(m):
          return 'Required fields: to, subject, body'
    if len(m.keys()) > 4:
       return 'Only fields allowed: to, subject, body'
-   for field, length in [('from', 40), ('to', 40),
+   for field, length in [('from', 20), ('to', 20),
                          ('subject', 140), ('body', 5000)]:
       if len(m[field]) > length:
          return 'Field "%s" must not exceed length %d' % (field, length)
    return None
+
+# Checks that a query for a message has proper settings
+def validate_message_query(args, username):
+   for key in args:
+      if key not in ['from', 'to', 'include', 'show']:
+         return 'Unknown field: %s' % key
+   if (len(username)) > 20:
+      return 'Username cannot exceed 20 characters'
+   for field in ['from', 'to']:
+      if field in args and len(args[field]) > 20:
+         return 'Field %s cannot exceed 20 characters' % field
+   for key, default in [('include', 'all'), ('show', 'all')]:
+      if key not in args:
+         args[key] = default
+   for field, options in [('include', ['sent', 'received', 'all']),
+                          ('show', ['read', 'unread', 'all'])]:
+      if args[field] not in options:
+         return 'Invalid option for %s. Allowed options: ' % (field, ','.join(options))
+

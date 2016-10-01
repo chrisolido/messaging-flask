@@ -1,3 +1,7 @@
+## messaging.py
+##
+## Start the application by running `python3 app/messaging.py`
+##
 from sqlalchemy import Table, Column, Integer, String
 from flask import Flask, make_response, json, url_for, request
 from db import Db   # See db.py
@@ -8,6 +12,8 @@ app = Flask(__name__)
 # The keys.json file should contain the 4 properties:
 # DATABASE, PASSWORD, SERVER, SCHEMA
 app.config.from_json('keys.json')
+app.config['DEBUG'] = True  # Turn this to True to enable debugging
+
 
 ## Setting up database
 db = Db(app.config)
@@ -24,7 +30,7 @@ def index():
 
 ## Get user information. Should provide links to various tasks like
 ## looking at sent messages or received messages or creating a new message
-@app.route('/user/<username>', methods = ['GET'])
+@app.route('/users/<username>', methods = ['GET'])
 def user_page(username):
    return make_json_response({
       'user': username,
@@ -39,7 +45,7 @@ def user_page(username):
 ## Creates a new user. Request body contains the password to be used
 ## If user/password exists, must ensure it is same or else throw error
 ## In first iteration of the app, no passwords.
-@app.route('/user/<username>', methods = ['PUT'])
+@app.route('/users/<username>', methods = ['PUT'])
 def user_create(username):
    if len(username) > 20:
       return make_json_response({ 'error': 'long username' }, 400)
@@ -47,20 +53,30 @@ def user_create(username):
       'Location': url_for('user_page', username=username)
    })
 
-@app.route('/user/<username>', methods = ['DELETE'])
+@app.route('/users/<username>', methods = ['DELETE'])
 def user_delete(username):
    pass
 
 ## Returns information about a user's messages. We should allow complex
 ## queries here
-@app.route('/user/<username>/messages', methods = ['GET'])
+@app.route('/users/<username>/messages', methods = ['GET'])
 def user_messages(username):
-   pass
+   args = request.args.to_dict()
+   error = message.validate_message_query(args, username)
+   if error is not None:
+      return make_json_response({ 'error': error }, 400)
+   results = db.get_messages(args, username)
+   return make_json_response({
+      'messages': [
+         { 'url': url_for('message_get', id=m['id']) }
+         for m in results
+      ]
+   }, 200)
 
 ## Used to post a new message. Body contains information about recipient
 ## - Validate the message
 ## - Add to database
-@app.route('/user/<username>/messages', methods = ['POST'])
+@app.route('/users/<username>/messages', methods = ['POST'])
 def user_new_message(username):
    contents = request.get_json()
    contents['from'] = username
@@ -103,6 +119,9 @@ def tag_add(id, tag):
 @app.route('/messages/<id>/tags/<tag>', methods = ['DELETE'])
 def tag_remove(id, tag):
    pass
+
+#####################################
+## Helper methods go here
 
 ## Helper method for creating JSON responses
 def make_json_response(content, response = 200, headers = {}):
