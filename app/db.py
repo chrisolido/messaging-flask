@@ -49,6 +49,7 @@ class Db:
       except:
          return None
 
+   # Gets all messages based on query
    def get_messages(self, args, username):
       conn = self.connect()
       query = select([self.messages])
@@ -71,3 +72,29 @@ class Db:
          query = query.where(column('read') == False)
       ## Perform query
       return conn.execute(query).fetchall()
+
+   # Fetches a single message based on id
+   def fetch_message(self, id):
+      conn = self.connect()
+      query = select([self.messages]).where(column('id') == id)
+      results = conn.execute(query).fetchall()
+      return results[0] if len(results) > 0 else None
+
+   # Fetches message tags if any
+   def fetch_message_tags(self, id):
+      conn = self.connect()
+      query = select([self.tags.c.tag]).where(column('msg_id') == id)
+      results = conn.execute(query).fetchall()
+      return map((lambda tag: tag[0]), results)
+
+   # Inserts a new message/tag pair
+   # Should only be called once we have established that the pair does not
+   # exist, and that id and tag are valid
+   def add_tag(self, id, tag):
+      try:
+         conn = self.connect()
+         result = conn.execute(self.tags.insert(), msg_id=id, tag=tag)
+         return result.inserted_primary_key
+      except:
+         return None
+

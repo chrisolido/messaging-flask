@@ -38,7 +38,7 @@ def user_page(username):
       'received': url_for('user_messages', username=username, include='received'),
       'create': {
          'url': url_for('user_new_message', username=username),
-         'content': { 'recipient': '', 'title': '', 'body': '' }
+         'content': { 'to': '', 'subject': '', 'body': '' }
       }
    }, 200)
 
@@ -113,7 +113,18 @@ def tag_check(id, tag):
 ## Adds a tag to a message, if it did not exist
 @app.route('/messages/<id>/tags/<tag>', methods = ['PUT'])
 def tag_add(id, tag):
-   pass
+   if len(tag) > 20:
+      return make_json_response({ 'error': 'tag too long' }, 400)
+   message = db.fetch_message(id)
+   if message is None:
+      return make_json_response({ 'error': 'message not found' }, 404)
+   tags = db.fetch_message_tags(id)
+   if tag in tags:
+      return make_json_response({}, 204)
+   # Need to add the tag
+   if db.add_tag(id, tag) is None:
+      return make_json_response({ 'error': 'server error' }, 500)
+   return make_json_response({}, 201)
 
 ## Removes a tag from a message
 @app.route('/messages/<id>/tags/<tag>', methods = ['DELETE'])
