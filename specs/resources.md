@@ -63,7 +63,7 @@ Sample JSON return:
     },
     "create": {
         "url": "... link to POST request for creating new mail ...",
-        "content": { "to": "", "subject": ", "body": "" }
+        "content": { "to": "", "subject": "", "body": "" }
     },
     "tags": [
         {
@@ -107,7 +107,7 @@ Sample JSON return:
 {
     "create": {
         "url": "... url for POST request for creating new email",
-        "content": { "to": "", "subject": ", "body": "" }
+        "content": { "to": "", "subject": "", "body": "" }
     },
     "messages": [
         { "url": "... url for GET for a specific message ..." },
