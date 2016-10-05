@@ -54,21 +54,21 @@ All methods return a 500 error in case of problems with database access.
 Sample JSON return:
 ```json
 {
-    'user': ...,
-    'sent': ... link to a GET request for all sent mail ...,
-    'received': ... link to a GET request for all received mail ...,
-    'unread': {
-        'count': ... number of received unread mail ...,
-        'url': ... link to a GET request for unread mail ...
+    "user": ...,
+    "sent": ... link to a GET request for all sent mail ...,
+    "received": ... link to a GET request for all received mail ...,
+    "unread": {
+        "count": ... number of received unread mail ...,
+        "url": ... link to a GET request for unread mail ...
     },
-    create: {
-        'url': ... link to POST request for creating new mail ...,
-        'content': { 'to': '', 'subject': '', 'body': '' }
+    "create": {
+        "url": ... link to POST request for creating new mail ...,
+        "content": { "to": ", "subject": ", "body": " }
     },
-    'tags': [
+    "tags": [
         {
-            'tag': ... a tag name that user has used ...,
-            'url': ... link to a GET request for all mail with that tag ...
+            "tag": ... a tag name that user has used ...,
+            "url": ... link to a GET request for all mail with that tag ...
         }
     ]
 }
@@ -105,12 +105,12 @@ Sample JSON return:
 Sample JSON return:
 ```json
 {
-    'create': {
-        'url': ... url for POST request for creating new email,
-        'content': { 'to': '', 'subject': '', 'body': '' }
+    "create": {
+        "url": ... url for POST request for creating new email,
+        "content": { "to": ", "subject": ", "body": " }
     },
-    'messages': [
-        { 'url': ... url for GET for a specific message ... },
+    "messages": [
+        { "url": ... url for GET for a specific message ... },
         ... more messages ...
     ]
 }
@@ -132,18 +132,18 @@ Sample JSON return:
 Sample return JSON:
 ```json
 {
-    'id': ... message id ...,
-    'from': ... sender ...,
-    'to': ... recipient ...,
-    'subject': ... subject line ...,
-    'body': ... text body ...,
-    'read': ... read status true/false ...,
-    'tags': [
-        {  url: ... url for the message/tag pair ... },
-        {  url: ... a second tag ... }
+    "id": ... message id ...,
+    "from": ... sender ...,
+    "to": ... recipient ...,
+    "subject": ... subject line ...,
+    "body": ... text body ...,
+    "read": ... read status true/false ...,
+    "tags": [
+        {  "url": ... url for the message/tag pair ... },
+        {  "url": ... a second tag ... }
     ],
-    'add_tag': {
-        url: ... url scheme for adding a tag ...
+    "add_tag": {
+        "url": ... url scheme for adding a tag ...
     }
 }
 ```
